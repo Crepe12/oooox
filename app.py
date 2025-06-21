@@ -1,14 +1,20 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
-import os
+import eventlet
+
+eventlet.monkey_patch()  # สำคัญมากเมื่อใช้กับ eventlet
 
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode="eventlet")  # ระบุ eventlet ตรงนี้
+socketio = SocketIO(app, async_mode='eventlet')  # ใช้ eventlet แน่ๆ
 
-@app.route("/")
+@app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    socketio.run(app, host="0.0.0.0", port=port)
+# ตัวอย่าง event สำหรับ XO
+@socketio.on('connect')
+def on_connect():
+    print('Client connected')
+
+if __name__ == '__main__':
+    socketio.run(app, host='0.0.0.0', port=5000)
